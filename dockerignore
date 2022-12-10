@@ -1,0 +1,7 @@
+.vscode
+**/node_modules
+README.md
+.git
+.gitignore
+Dockerfile
+./client/node_modules/
