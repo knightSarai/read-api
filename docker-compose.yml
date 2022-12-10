@@ -14,7 +14,7 @@ services:
         container_name: server
         build:
           context: ./server
-        command: gunicorn core.wsgi --bind 0.0.0.0:8000 --reload
+        command: python manage.py runserver 0.0.0.0:8000
         volumes:
             - ./server:/usr/src/app/
         ports:
@@ -24,17 +24,6 @@ services:
             - DJANGO_ALLOWED_HOSTS=localhost 127.0.0.1 [::1]
         depends_on:
             - db
-    nginx:
-      image: nginx:latest
-      restart: always
-      ports:
-        - 1200:8080
-      volumes:
-        - ./nginx/nginx-setup.conf:/etc/nginx/conf.d/default.conf:ro
-        - ./server/static:/static
-      depends_on:
-        - client
-
         
 volumes:
     pgdata:

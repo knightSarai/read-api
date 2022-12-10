@@ -1,0 +1,12 @@
+POST http://localhost:8000/api/auth/login/
+Content-Type: application/json
+
+{
+  "username": "rashed",
+  "password": "qwerty1200"
+}
+
+### me
+GET http://localhost:8000/api/auth/me
+Content-Type: application/json
+Authorization: Token ff1b5cd8bfe71bba75d5610e28263bcad355c9dec09fa6ee68a796c6fb3e9d79
