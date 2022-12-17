@@ -18,7 +18,10 @@ class AppTokenAuthentication(APIKeyHeader):
         return self.authenticate(request)
 
     def authenticate(self, request):
-        return TokenAuthentication().authenticate(request)
+        user, _ =TokenAuthentication().authenticate(request)
+        request.user = user
+        return user
+
 
 
 api = NinjaAPI(auth=AppTokenAuthentication())

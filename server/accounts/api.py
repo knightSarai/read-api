@@ -46,4 +46,5 @@ def register(request, user_payload: UserRegisterSchema, response=201):
         
 @router.get("/me", response=UserOut)
 def me(request):
+    print(request.auth)
     return request.user
