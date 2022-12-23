@@ -43,3 +43,16 @@ GET http://localhost:8000/api/books/1
 Content-Type: application/json
 Authorization: Token {{auth_token}}
 
+### Create Genere
+POST http://localhost:8000/api/books/genres/
+Content-Type: application/json
+Authorization: Token {{auth_token}}
+
+{
+  "name": "History"
+}
+
+### Get Generes
+GET http://localhost:8000/api/books/genres/
+Content-Type: application/json
+

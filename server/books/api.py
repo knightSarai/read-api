@@ -3,10 +3,10 @@ from typing import List
 from django.contrib.postgres.search import SearchVector, SearchQuery, SearchRank
 from django.shortcuts import get_object_or_404
 from ninja import Router, Query
-from ninja.pagination import paginate, PageNumberPagination
+from ninja.pagination import paginate
 
-from books.models import Book
-from books.schemas import BookIn, BookQueryParams, BookOut
+from books.models import Book, Genre
+from books.schemas import BookIn, BookQueryParams, BookOut, GenreIn, GenreOut
 
 router = Router()
 
@@ -53,3 +53,18 @@ def search_books(request, query: BookQueryParams = Query(...)):
 @router.get("/{user_id}", response=BookOut, auth=None)
 def get_book_by_id(request, user_id: int):
     return get_object_or_404(Book, id=user_id)
+
+
+@router.post("/genres/")
+def create_genre(request, payload: GenreIn):
+    genre = Genre.objects.create(
+        created_by=request.user,
+        name=payload.name
+    )
+
+    return {"id": genre.id}
+
+
+@router.get("/genres/", response=List[GenreOut], auth=None)
+def get_genres(request):
+    return Genre.objects.all()

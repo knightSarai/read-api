@@ -31,3 +31,10 @@ class BookQueryParams(Schema):
             raise ValueError("At least one field must be provided")
         return values
 
+
+class GenreIn(Schema):
+    name: str
+
+
+class GenreOut(GenreIn):
+    id: int
