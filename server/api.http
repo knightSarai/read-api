@@ -21,15 +21,32 @@ Content-Type: application/json
 Authorization: Token {{auth_token}}
 
 ### Create Book
-POST http://localhost:8000/api/books/
+POST http://localhost:8000/api/books
 Content-Type: application/json
 Authorization: Token {{auth_token}}
 
 {
-  "title": "book 10",
+  "title": "book 16",
   "authors": "knight",
   "language": "en",
   "pages": 1200
+}
+
+### Get All Books
+GET http://localhost:8000/api/books
+Content-Type: application/json
+
+### Update Book
+PUT http://localhost:8000/api/books/24
+Content-Type: application/json
+Authorization: Token {{auth_token}}
+
+{
+  "title": "book 24 edited",
+  "authors": "knight",
+  "language": "en",
+  "pages": 1200,
+  "genres": [4, 3]
 }
 
 
@@ -39,12 +56,12 @@ Content-Type: application/json
 
 
 ### Get Book
-GET http://localhost:8000/api/books/1
+GET http://localhost:8000/api/books/27
 Content-Type: application/json
 Authorization: Token {{auth_token}}
 
 ### Create Genere
-POST http://localhost:8000/api/books/genres/
+POST http://localhost:8000/api/books/genres
 Content-Type: application/json
 Authorization: Token {{auth_token}}
 
@@ -53,6 +70,9 @@ Authorization: Token {{auth_token}}
 }
 
 ### Get Generes
-GET http://localhost:8000/api/books/genres/
+GET http://localhost:8000/api/books/genres
 Content-Type: application/json
 
+### Get Book Genres
+GET http://localhost:8000/api/books/24/genres
+Content-Type: application/json

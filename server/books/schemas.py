@@ -4,7 +4,7 @@ from ninja import Schema
 from pydantic import root_validator
 
 
-class BookIn(Schema):
+class BookBase(Schema):
     title: str
     authors: str
     isbn: Optional[str]
@@ -14,10 +14,13 @@ class BookIn(Schema):
     publication_date: Optional[str]
     publisher: Optional[str]
     description: Optional[str]
+
+
+class BookIn(BookBase):
     genres: Optional[list[int]]
 
 
-class BookOut(BookIn):
+class BookOut(BookBase):
     id: int
 
 
