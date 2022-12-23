@@ -1,6 +1,7 @@
 from typing import List
 
 from django.contrib.postgres.search import SearchVector, SearchQuery, SearchRank
+from django.shortcuts import get_object_or_404
 from ninja import Router, Query
 from ninja.pagination import paginate, PageNumberPagination
 
@@ -20,7 +21,7 @@ def create_book(request, payload: BookIn):
     return {"id": book.id}
 
 
-@router.get("/search", response=List[BookOut])
+@router.get("/search", response=List[BookOut], auth=None)
 @paginate
 def search_books(request, query: BookQueryParams = Query(...)):
     query = query.dict(exclude_unset=True)
@@ -47,3 +48,8 @@ def search_books(request, query: BookQueryParams = Query(...)):
     )
 
     return books
+
+
+@router.get("/{user_id}", response=BookOut, auth=None)
+def get_book_by_id(request, user_id: int):
+    return get_object_or_404(Book, id=user_id)

@@ -36,5 +36,10 @@ Authorization: Token {{auth_token}}
 ### Search For a book
 GET http://localhost:8000/api/books/search?title=book&authors=knight&limit=5&offset=0
 Content-Type: application/json
+
+
+### Get Book
+GET http://localhost:8000/api/books/1
+Content-Type: application/json
 Authorization: Token {{auth_token}}
 
