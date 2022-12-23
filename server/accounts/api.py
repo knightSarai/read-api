@@ -10,7 +10,6 @@ from rest_framework.authtoken.serializers import AuthTokenSerializer
 
 from knox.views import LoginView as KnoxLoginView
 
-
 router = Router()
 
 
@@ -27,14 +26,13 @@ def login(request, user_payload: UserLoginSchema):
 
 @router.post("/register", auth=None)
 def register(request, user_payload: UserRegisterSchema, response=201):
-
     if user_payload.password != user_payload.password_confirm:
-        raise ValidationError("Password does not match")
+        raise ValidationError([{"Password": "Password does not match"}])
 
     User = get_user_model()
     email_exist = User.objects.filter(email=user_payload.email).exists()
     if email_exist:
-        raise ValidationError("Email already exist")
+        raise ValidationError([{"Email": "Email already exist"}])
 
     User.objects.create_user(
         username=user_payload.username,
@@ -43,8 +41,8 @@ def register(request, user_payload: UserRegisterSchema, response=201):
     )
 
     return
-        
+
+
 @router.get("/me", response=UserOut)
 def me(request):
-    print(request.auth)
     return request.user

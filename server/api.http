@@ -6,12 +6,35 @@ Content-Type: application/json
   "password": "qwerty1200"
 }
 
+> {%
+    client.global.set("auth_token", response.body.token);
+%}
+
 ### logout
 POST http://localhost:8000/api/auth/logout/
 Content-Type: application/json
-Authorization: Token 608d61e4cba875d21f088c4b3005363904a5ede3f5cfb47255b3ac6c7971f871 
+Authorization: Token {{auth_token}}
 
 ### me
 GET http://localhost:8000/api/auth/me
 Content-Type: application/json
-Authorization: Token ff1b5cd8bfe71bba75d5610e28263bcad355c9dec09fa6ee68a796c6fb3e9d79
+Authorization: Token {{auth_token}}
+
+### Create Book
+POST http://localhost:8000/api/books/
+Content-Type: application/json
+Authorization: Token {{auth_token}}
+
+{
+  "title": "book 10",
+  "authors": "knight",
+  "language": "en",
+  "pages": 1200
+}
+
+
+### Search For a book
+GET http://localhost:8000/api/books/search?title=book&authors=knight&limit=5&offset=0
+Content-Type: application/json
+Authorization: Token {{auth_token}}
+
