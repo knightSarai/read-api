@@ -4,6 +4,7 @@ from ninja.security import APIKeyHeader
 
 from accounts.api import router as accounts_router
 from books.api import router as books_router
+from userbooks.api import router as userbooks_router
 
 
 class AppTokenAuthentication(APIKeyHeader):
@@ -25,3 +26,4 @@ api = NinjaAPI(auth=AppTokenAuthentication())
 
 api.add_router("/auth", accounts_router)
 api.add_router("/books", books_router)
+api.add_router('/user', userbooks_router)

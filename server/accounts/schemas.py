@@ -1,5 +1,6 @@
 from ninja import Schema
 
+
 class UserRegisterSchema(Schema):
     username: str
     email: str
@@ -11,6 +12,7 @@ class UserOut(Schema):
     id: int
     username: str
     email: str
+
 
 class UserLoginSchema(Schema):
     username: str

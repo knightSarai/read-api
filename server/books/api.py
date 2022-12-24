@@ -58,7 +58,7 @@ def get_genres(request):
 
 @router.post("")
 def create_book(request, payload: BookIn):
-    genres = payload.dict(include={"genres"})["genres"]
+    genres = payload.dict(include={"genres"}).get("genres")
 
     with transaction.atomic():
         book = Book.objects.create(
@@ -104,5 +104,4 @@ def get_book_by_id(request, book_id: int):
 def get_genres_by_book_id(request, book_id: int):
     book = get_object_or_404(Book, id=book_id)
     genres = book.genres.all()
-    print(genres)
     return genres

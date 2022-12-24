@@ -1,3 +1,7 @@
 from django.contrib import admin
 
-# Register your models here.
+from .models import UserBook, Shelf
+
+admin.site.register(UserBook)
+admin.site.register(Shelf)
+

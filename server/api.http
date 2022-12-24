@@ -1,4 +1,4 @@
-POST http://localhost:8000/api/auth/login/
+POST http://localhost:8000/api/auth/login
 Content-Type: application/json
 
 {
@@ -76,3 +76,49 @@ Content-Type: application/json
 ### Get Book Genres
 GET http://localhost:8000/api/books/24/genres
 Content-Type: application/json
+
+### Create User Book
+POST http://localhost:8000/api/user/books
+Content-Type: application/json
+Authorization: Token {{auth_token}}
+
+{
+  "book_id": 28,
+  "shelves": [1]
+}
+
+### Get User Books
+GET http://localhost:8000/api/user/books
+Content-Type: application/json
+Authorization: Token {{auth_token}}
+
+### Update User Book
+PUT http://localhost:8000/api/user/books/24
+Content-Type: application/json
+Authorization: Token {{auth_token}}
+
+{
+  "shelves": [1, 2]
+}
+
+
+### Create Shelf
+POST http://localhost:8000/api/user/shelves
+Authorization: Token {{auth_token}}
+
+{
+  "name": "shelf 2"
+}
+
+
+### Get Shelves
+GET http://localhost:8000/api/user/shelves
+Authorization: Token {{auth_token}}
+
+### Add book to shelf
+POST http://localhost:8000/api/user/shelves/shelf-1/books
+Authorization: Token {{auth_token}}
+
+{
+  "user_book_id": 24
+}

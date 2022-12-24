@@ -1,6 +1,6 @@
 from django.contrib.auth import get_user_model
 from ninja import Router
-from ninja.errors import ValidationError
+from ninja.errors import ValidationError, HttpError
 
 from .schemas import UserOut, UserRegisterSchema, UserLoginSchema
 
@@ -15,13 +15,18 @@ router = Router()
 
 @router.post("/login", auth=None)
 def login(request, user_payload: UserLoginSchema):
-    user_payload = user_payload.dict()
+    try:
+        user_payload = user_payload.dict()
+        serializer = AuthTokenSerializer(data=user_payload)
+        serializer.is_valid(raise_exception=True)
+        user = serializer.validated_data['user']
+        django_login(request, user)
 
-    serializer = AuthTokenSerializer(data=user_payload)
-    serializer.is_valid(raise_exception=True)
-    user = serializer.validated_data['user']
-    django_login(request, user)
-    return KnoxLoginView().post(request, format=None).data
+        knox_data = KnoxLoginView().post(request, format=None).data
+        return knox_data
+
+    except Exception as e:
+        raise HttpError(400, f"Invalid credentials")
 
 
 @router.post("/register", auth=None)
