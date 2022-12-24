@@ -51,7 +51,7 @@ Authorization: Token {{auth_token}}
 
 
 ### Search For a book
-GET http://localhost:8000/api/books/search?title=book&authors=knight&limit=5&offset=0
+GET http://localhost:8000/api/books/search?title=book%203&authors=knight&limit=5&offset=0
 Content-Type: application/json
 
 
@@ -101,24 +101,80 @@ Authorization: Token {{auth_token}}
   "shelves": [1, 2]
 }
 
+### Delete User Book
+DELETE http://localhost:8000/api/user/books/4
+Content-Type: application/json
+Authorization: Token {{auth_token}}
+
 
 ### Create Shelf
 POST http://localhost:8000/api/user/shelves
 Authorization: Token {{auth_token}}
 
 {
-  "name": "shelf 2"
+  "name": "shelf 4"
 }
-
 
 ### Get Shelves
 GET http://localhost:8000/api/user/shelves
 Authorization: Token {{auth_token}}
 
-### Add book to shelf
-POST http://localhost:8000/api/user/shelves/shelf-1/books
+
+### Update Shelf name
+PUT http://localhost:8000/api/user/shelves/4
 Authorization: Token {{auth_token}}
 
 {
-  "user_book_id": 24
+  "name": "shelf 4 edited"
+}
+
+
+### Add book to shelf
+POST http://localhost:8000/api/user/shelves/4/books
+Authorization: Token {{auth_token}}
+
+{
+  "user_book_id": 9
+}
+
+### Get book shelf
+GET http://localhost:8000/api/user/shelves/4/books
+Authorization: Token {{auth_token}}
+
+### Remove book from shelf
+DELETE http://localhost:8000/api/user/shelves/4/books/9
+Authorization: Token {{auth_token}}
+
+
+### Set Book as current reading
+PUT http://localhost:8000/api/user/currently-reading
+Authorization: Token {{auth_token}}
+Content-Type: application/json
+
+{
+  "user_book_id": 9,
+  "status": false
+}
+
+### Get current reading
+GET http://localhost:8000/api/user/currently-reading
+Authorization: Token {{auth_token}}
+
+### Get Book Session
+GET http://localhost:8000/api/user/books/9/sessions
+Authorization: Token {{auth_token}}
+
+### Create Book Session
+POST http://localhost:8000/api/user/books/9/sessions
+Authorization: Token {{auth_token}}
+
+{}
+
+### Update Book Session
+PUT http://localhost:8000/api/user/books/9/sessions/2
+Authorization: Token {{auth_token}}
+Content-Type: application/json
+
+{
+  "finished_at": "2022-12-27T18:48:48.508Z"
 }

@@ -1,3 +1,5 @@
+from datetime import datetime
+from decimal import Decimal
 from typing import List, Optional
 
 from ninja import Schema
@@ -22,6 +24,11 @@ class ShelfBookIn(Schema):
     user_book_id: int
 
 
+class CurrentlyReadingIn(Schema):
+    user_book_id: int
+    status: bool
+
+
 class UserBookIn(Schema):
     book_id: int
     shelves: Optional[List[int]]
@@ -34,3 +41,19 @@ class UserBookUpdate(Schema):
 class UserBookOut(Schema):
     id: int
     book: BookOut
+    is_currently_reading: bool
+
+
+class UserBookSessionBase(Schema):
+    progress: Optional[Decimal]
+    started_at: Optional[datetime]
+    finished_at: Optional[datetime]
+
+
+class UserBookSessionOut(UserBookSessionBase):
+    id: int
+    progress_updated_at: Optional[datetime]
+
+
+class UserBookSessionIn(UserBookSessionBase):
+    pass
