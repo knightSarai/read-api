@@ -1,13 +1,13 @@
 from typing import List
 
 from django.db import transaction
+from django.db.models import OuterRef, Exists
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
 from ninja import Router
 from ninja.errors import HttpError
 from ninja.pagination import paginate
 
-from userbooks.exceptions import UserBookSessionAlreadyExists
 from userbooks.helpers import check_unfinished_session
 from userbooks.models import Shelf, UserBook, UserBookSession
 from userbooks.schemas import (
@@ -39,6 +39,22 @@ def list_user_books(request):
     return UserBook.objects.filter(created_by=request.user)
 
 
+@router.get("/books/read/all", response=List[UserBookOut])
+@paginate
+def list_read_books(request):
+    all_book_finished_sessions = UserBookSession.objects.filter(
+        userbook=OuterRef("pk"),
+        finished_at__isnull=False
+    )
+
+    return (
+        UserBook.objects
+        .filter(created_by=request.user)
+        .annotate(read=Exists(all_book_finished_sessions))
+        .filter(read=True)
+    )
+
+
 @router.put("/books/{book_id}")
 def update_user_books(request, book_id: int, payload: UserBookUpdate):
     shelves = payload.dict().get('shelves')
@@ -67,21 +83,57 @@ def create_user_book_session(request, book_id: int, payload: UserBookSessionIn):
     user = request.user
     userbook = get_object_or_404(UserBook, pk=book_id, created_by=user)
 
-    try:
-        check_unfinished_session(book_id)
+    session = check_unfinished_session(book_id)
 
-        UserBookSession.objects.create(
-            created_by=user,
-            userbook=userbook,
-            started_at=payload.started_at or timezone.now(),
-            finished_at=payload.finished_at
+    if session:
+        raise HttpError(
+            400,
+            f"You have unfinished session {session.started_at.strftime('%d %b %Y %H:%M:%S')} for this book"
         )
 
-        userbook.is_currently_reading = not payload.finished_at
-        userbook.save()
+    UserBookSession.objects.create(
+        created_by=user,
+        userbook=userbook,
+        started_at=payload.started_at or timezone.now(),
+        finished_at=payload.finished_at
+    )
 
-    except UserBookSessionAlreadyExists as e:
-        raise HttpError(400, str(e))
+    return 201
+
+
+@router.delete("/books/{book_id}/sessions/{session_id}")
+def delete_user_book_session(request, book_id: int, session_id: int):
+    user = request.user
+    userbook = get_object_or_404(UserBook, pk=book_id, created_by=user)
+    session = get_object_or_404(UserBookSession, pk=session_id, userbook=userbook)
+
+    session.delete()
+
+    return 200
+
+
+@router.put("/books/{book_id}/done")
+def mark_book_as_done(request, book_id: int):
+    user = request.user
+    userbook = get_object_or_404(UserBook, pk=book_id, created_by=user)
+
+    session = check_unfinished_session(book_id)
+
+    with transaction.atomic():
+        if session:
+            session.finished_at = timezone.now()
+            session.save()
+
+        if not session:
+            UserBookSession.objects.create(
+                created_by=user,
+                userbook=userbook,
+                started_at=timezone.now(),
+                finished_at=timezone.now()
+            )
+
+        userbook.is_currently_reading = False
+        userbook.save()
 
     return 201
 
@@ -156,29 +208,14 @@ def update_currently_reading(request, payload: CurrentlyReadingIn):
     userbook = get_object_or_404(UserBook, id=payload.user_book_id, created_by=request.user)
     userbook.is_currently_reading = payload.status
     userbook.save()
-    finished_at = timezone.now() if not payload.status else None
     user = request.user
 
-    try:
-        if payload.status:
-            check_unfinished_session(userbook.id)
-            UserBookSession.objects.create(
-                created_by=user,
-                userbook=userbook,
-                started_at=timezone.now()
-            )
-        else:
-            (
-                UserBookSession.objects
-                .filter(
-                    created_by=user,
-                    userbook__pk=userbook.id,
-                    finished_at=None
-                )
-                .update(finished_at=finished_at)
-            )
-
-    except UserBookSessionAlreadyExists:
-        return 200
+    session = check_unfinished_session(userbook.id)
+    if not session:
+        UserBookSession.objects.create(
+            created_by=user,
+            userbook=userbook,
+            started_at=timezone.now()
+        )
 
     return 200

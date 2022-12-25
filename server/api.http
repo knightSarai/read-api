@@ -83,7 +83,7 @@ Content-Type: application/json
 Authorization: Token {{auth_token}}
 
 {
-  "book_id": 28,
+  "book_id": 17,
   "shelves": [1]
 }
 
@@ -152,8 +152,8 @@ Authorization: Token {{auth_token}}
 Content-Type: application/json
 
 {
-  "user_book_id": 9,
-  "status": false
+  "user_book_id": 11,
+  "status": true
 }
 
 ### Get current reading
@@ -170,11 +170,30 @@ Authorization: Token {{auth_token}}
 
 {}
 
+### Delete Book Session
+DELETE http://localhost:8000/api/user/books/9/sessions/11
+Authorization: Token {{auth_token}}
+
+
 ### Update Book Session
-PUT http://localhost:8000/api/user/books/9/sessions/2
+PUT http://localhost:8000/api/user/books/9/sessions/10
 Authorization: Token {{auth_token}}
 Content-Type: application/json
 
 {
   "finished_at": "2022-12-27T18:48:48.508Z"
 }
+
+
+### Mark book as done
+PUT http://localhost:8000/api/user/books/11/done
+Authorization: Token {{auth_token}}
+Content-Type: application/json
+
+{}
+
+
+### Get all read books
+GET http://localhost:8000/api/user/books/read/all
+Authorization: Token {{auth_token}}
+Content-Type: application/json
