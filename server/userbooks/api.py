@@ -1,7 +1,7 @@
 from typing import List
 
 from django.db import transaction
-from django.db.models import OuterRef, Exists
+from django.db.models import OuterRef, Exists, Subquery
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
 from ninja import Router
@@ -12,7 +12,7 @@ from userbooks.helpers import check_unfinished_session
 from userbooks.models import Shelf, UserBook, UserBookSession
 from userbooks.schemas import (
     ShelfIn, ShelfOut, ShelfBookIn, UserBookIn, UserBookUpdate, UserBookOut,
-    CurrentlyReadingIn, UserBookSessionOut, UserBookSessionIn
+    CurrentlyReadingIn, UserBookSessionOut, UserBookSessionIn, ReadingProgressIn, CurrentlyReadingBookOut
 )
 
 router = Router()
@@ -52,6 +52,7 @@ def list_read_books(request):
         .filter(created_by=request.user)
         .annotate(read=Exists(all_book_finished_sessions))
         .filter(read=True)
+        .order_by("-updated_at")
     )
 
 
@@ -133,6 +134,8 @@ def mark_book_as_done(request, book_id: int):
             )
 
         userbook.is_currently_reading = False
+        userbook.progress = None
+        userbook.progress_updated_at = None
         userbook.save()
 
     return 201
@@ -197,10 +200,19 @@ def remove_book_from_shelf(request, shelf_id: int, user_book_id: int):
     return 204
 
 
-@router.get("/currently-reading", response=List[UserBookOut])
+@router.get("/currently-reading", response=List[CurrentlyReadingBookOut])
 @paginate
 def get_currently_reading(request):
-    return UserBook.objects.filter(created_by=request.user, is_currently_reading=True)
+    all_book_unfinished_sessions = UserBookSession.objects.filter(
+        userbook=OuterRef("pk"),
+        finished_at__isnull=True
+    )
+
+    return (
+        UserBook.objects
+        .filter(created_by=request.user, is_currently_reading=True)
+        .annotate(progress=Subquery(all_book_unfinished_sessions.values("progress")))
+    )
 
 
 @router.put("/currently-reading")
@@ -217,5 +229,34 @@ def update_currently_reading(request, payload: CurrentlyReadingIn):
             userbook=userbook,
             started_at=timezone.now()
         )
+
+    return 200
+
+
+@router.put("/currently-reading/progress")
+def update_currently_reading_progress(request, payload: ReadingProgressIn):
+    userbook = get_object_or_404(UserBook, id=payload.user_book_id, created_by=request.user)
+
+    if not userbook.is_currently_reading:
+        raise HttpError(400, "Book is not currently reading")
+
+    if payload.progress > userbook.book.pages:
+        raise HttpError(400, "Progress is greater than book pages")
+
+    current_book_session = check_unfinished_session(userbook.id)
+
+    if not current_book_session:
+        UserBookSession.objects.create(
+            created_by=request.user,
+            userbook=userbook,
+            progress=payload.progress,
+            progress_updated_at=timezone.now(),
+            started_at=timezone.now()
+        )
+
+    if current_book_session:
+        current_book_session.progress = payload.progress
+        current_book_session.progress_updated_at = timezone.now()
+        current_book_session.save()
 
     return 200

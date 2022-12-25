@@ -156,12 +156,22 @@ Content-Type: application/json
   "status": true
 }
 
+### Update user progress
+PUT http://localhost:8000/api/user/currently-reading/progress
+Authorization: Token {{auth_token}}
+Content-Type: application/json
+
+{
+  "user_book_id": 11,
+  "progress": 1200
+}
+
 ### Get current reading
 GET http://localhost:8000/api/user/currently-reading
 Authorization: Token {{auth_token}}
 
 ### Get Book Session
-GET http://localhost:8000/api/user/books/9/sessions
+GET http://localhost:8000/api/user/books/11/sessions
 Authorization: Token {{auth_token}}
 
 ### Create Book Session

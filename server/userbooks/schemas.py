@@ -3,6 +3,7 @@ from decimal import Decimal
 from typing import List, Optional
 
 from ninja import Schema
+from pydantic import conint
 
 from books.schemas import BookOut
 
@@ -44,6 +45,10 @@ class UserBookOut(Schema):
     is_currently_reading: bool
 
 
+class CurrentlyReadingBookOut(UserBookOut):
+    progress: int
+
+
 class UserBookSessionBase(Schema):
     progress: Optional[Decimal]
     started_at: Optional[datetime]
@@ -57,3 +62,8 @@ class UserBookSessionOut(UserBookSessionBase):
 
 class UserBookSessionIn(UserBookSessionBase):
     pass
+
+
+class ReadingProgressIn(Schema):
+    user_book_id: int
+    progress: conint(ge=0)

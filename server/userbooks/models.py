@@ -30,7 +30,11 @@ class UserBook(BaseModel):
 
 class UserBookSession(BaseModel):
     userbook = models.ForeignKey('userbooks.UserBook', on_delete=models.CASCADE, related_name='all_sessions')
-    progress = models.IntegerField(blank=True, null=True)
+    progress = models.IntegerField(
+        blank=True,
+        null=True,
+        validators=[MinValueValidator(0)]
+    )
     progress_updated_at = models.DateTimeField(blank=True, null=True)
     started_at = models.DateTimeField()
     finished_at = models.DateTimeField(blank=True, null=True)
