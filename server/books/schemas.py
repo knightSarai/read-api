@@ -22,6 +22,7 @@ class BookIn(BookBase):
 
 class BookOut(BookBase):
     id: int
+    image: Optional[str]
 
 
 class BookQueryParams(Schema):

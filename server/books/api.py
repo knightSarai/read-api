@@ -3,9 +3,9 @@ from typing import List
 from django.contrib.postgres.search import SearchVector, SearchQuery, SearchRank
 from django.db import transaction
 from django.shortcuts import get_object_or_404
-from ninja import Router, Query, File, Form
-from ninja.pagination import paginate
+from ninja import Router, Query, File
 from ninja.files import UploadedFile
+from ninja.pagination import paginate
 
 from books.models import Book, Genre
 from books.schemas import BookIn, BookQueryParams, BookOut, GenreIn, GenreOut
@@ -58,14 +58,13 @@ def get_genres(request):
 
 
 @router.post("")
-def create_book(request, payload: BookIn, image: UploadedFile = File(default=None)):
+def create_book(request, payload: BookIn):
     genres = payload.dict(include={"genres"}).get("genres")
 
     with transaction.atomic():
         book = Book.objects.create(
             created_by=request.user,
             **payload.dict(exclude_unset=True, exclude={"genres"}),
-            image=image
         )
 
         if genres:
@@ -86,6 +85,7 @@ def update_book(request, book_id: int, payload: BookIn):
 
     with transaction.atomic():
         book = get_object_or_404(Book, pk=book_id)
+
         for k, v in payload.dict(exclude_unset=True, exclude={"genres"}).items():
             setattr(book, k, v)
         book.save()
@@ -95,6 +95,24 @@ def update_book(request, book_id: int, payload: BookIn):
             book.genres.set(Genre.objects.filter(pk__in=genres))
 
     return {"id": book.id}
+
+
+@router.post("/{book_id}/image")
+def upload_book_image(request, book_id: int, image: UploadedFile = File(...)):
+    book = get_object_or_404(Book, pk=book_id)
+    book.image.delete()
+    book.image = image
+    book.save()
+
+    return {"id": book.id}
+
+
+@router.delete("/{book_id}/image")
+def delete_book_image(request, book_id: int):
+    book = get_object_or_404(Book, pk=book_id)
+    book.image.delete()
+
+    return 204
 
 
 @router.get("/{book_id}", response=BookOut, auth=None)

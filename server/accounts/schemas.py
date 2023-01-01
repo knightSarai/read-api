@@ -17,3 +17,8 @@ class UserOut(Schema):
 class UserLoginSchema(Schema):
     username: str
     password: str
+
+
+class UserProfileSchema(Schema):
+    user: UserOut
+    image: str = None
