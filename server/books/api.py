@@ -3,8 +3,9 @@ from typing import List
 from django.contrib.postgres.search import SearchVector, SearchQuery, SearchRank
 from django.db import transaction
 from django.shortcuts import get_object_or_404
-from ninja import Router, Query
+from ninja import Router, Query, File, Form
 from ninja.pagination import paginate
+from ninja.files import UploadedFile
 
 from books.models import Book, Genre
 from books.schemas import BookIn, BookQueryParams, BookOut, GenreIn, GenreOut
@@ -57,13 +58,14 @@ def get_genres(request):
 
 
 @router.post("")
-def create_book(request, payload: BookIn):
+def create_book(request, payload: BookIn, image: UploadedFile = File(default=None)):
     genres = payload.dict(include={"genres"}).get("genres")
 
     with transaction.atomic():
         book = Book.objects.create(
             created_by=request.user,
-            **payload.dict(exclude_unset=True, exclude={"genres"})
+            **payload.dict(exclude_unset=True, exclude={"genres"}),
+            image=image
         )
 
         if genres:

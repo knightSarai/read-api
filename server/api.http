@@ -26,10 +26,10 @@ Content-Type: application/json
 Authorization: Token {{auth_token}}
 
 {
-  "title": "book 16",
-  "authors": "knight",
+  "title": "book With Image",
+  "authors": "Rahaf",
   "language": "en",
-  "pages": 1200
+  "pages": 60
 }
 
 ### Get All Books
