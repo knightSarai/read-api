@@ -1,5 +1,7 @@
 from django.contrib.auth import get_user_model, login as django_login
+
 from django.shortcuts import get_object_or_404
+from django.db import transaction
 from knox.views import LoginView as KnoxLoginView
 from ninja import Router, File, UploadedFile
 from ninja.errors import ValidationError, HttpError
@@ -38,11 +40,14 @@ def register(request, user_payload: UserRegisterSchema, response=201):
     if email_exist:
         raise ValidationError([{"Email": "Email already exist"}])
 
-    User.objects.create_user(
-        username=user_payload.username,
-        email=user_payload.email,
-        password=user_payload.password
-    )
+    with transaction.atomic():
+        user = User.objects.create_user(
+            username=user_payload.username,
+            email=user_payload.email,
+            password=user_payload.password
+        )
+
+        Profile.objects.create(user=user)
 
     return 201
 
