@@ -1,3 +1,4 @@
+from datetime import date
 from typing import Optional
 
 from ninja import Schema
@@ -11,7 +12,7 @@ class BookBase(Schema):
     isbn13: Optional[str]
     language: str
     pages: int
-    publication_date: Optional[str]
+    publication_date: Optional[date]
     publisher: Optional[str]
     description: Optional[str]
 
