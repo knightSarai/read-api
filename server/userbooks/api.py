@@ -164,7 +164,14 @@ def create_shelf(request, payload: ShelfIn):
 
 
 @router.get("/shelves", response=List[ShelfOut])
-def get_shelves(request):
+def get_shelves(request, has_books: bool = False):
+    if has_books:
+        shelf_books = UserBook.objects.filter(
+            created_by=request.user,
+            shelves=OuterRef("pk")
+        )
+        return Shelf.objects.annotate(has_books=Exists(shelf_books)).filter(has_books=True)
+        
     return Shelf.objects.filter(created_by=request.user)
 
 
