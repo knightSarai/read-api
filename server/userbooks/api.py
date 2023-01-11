@@ -1,7 +1,7 @@
 from typing import List
 
 from django.db import transaction
-from django.db.models import OuterRef, Exists, Subquery
+from django.db.models import OuterRef, Exists, Subquery, Value
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
 from ninja import Router
@@ -12,7 +12,7 @@ from userbooks.helpers import check_unfinished_session
 from userbooks.models import Shelf, UserBook, UserBookSession
 from userbooks.schemas import (
     ShelfIn, ShelfOut, ShelfBookIn, UserBookIn, UserBookUpdate, UserBookOut,
-    CurrentlyReadingIn, UserBookSessionOut, UserBookSessionIn, ReadingProgressIn, CurrentlyReadingBookOut
+    CurrentlyReadingIn, UserBookSessionOut, UserBookSessionIn, ReadingProgressIn, CurrentlyReadingBookOut, ShelfBookOut
 )
 
 router = Router()
@@ -183,11 +183,11 @@ def update_shelf(request, shelf_id: int, payload: ShelfIn):
     return 200
 
 
-@router.get("/shelves/{shelf_id}/books", response=List[UserBookOut])
+@router.get("/shelves/{shelf_id}/books", response=List[ShelfBookOut])
 @paginate
 def get_shelf_books(request, shelf_id: int):
     shelf = get_object_or_404(Shelf, pk=shelf_id, created_by=request.user)
-    return shelf.all_userbooks.all()
+    return shelf.all_userbooks.annotate(shelf_name=Value(shelf.name)).all()
 
 
 @router.post("/shelves/{shelf_id}/books")

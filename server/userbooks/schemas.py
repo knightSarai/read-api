@@ -17,8 +17,6 @@ class ShelfOut(ShelfIn):
     slug: str
 
 
-class ShelfBooksOut(ShelfOut):
-    pass
 
 
 class ShelfBookIn(Schema):
@@ -44,6 +42,9 @@ class UserBookOut(Schema):
     book: BookOut
     is_currently_reading: bool
 
+
+class ShelfBookOut(UserBookOut):
+    shelf_name: str
 
 class CurrentlyReadingBookOut(UserBookOut):
     progress: int
