@@ -19,16 +19,22 @@ router = Router()
 
 
 @router.post("/books")
-def create_user_books(request, payload: UserBookIn):
+def create_user_book(request, payload: UserBookIn):
     shelves = payload.dict(include={"shelves"}).get("shelves")
-    with transaction.atomic():
-        user_book = UserBook.objects.create(
-            created_by=request.user,
-            **payload.dict(exclude={"shelves"})
-        )
+    book_id = payload.book_id
 
-        if shelves:
-            user_book.shelves.set(Shelf.objects.filter(pk__in=shelves))
+    try:
+        UserBook.objects.get(book__pk=book_id, created_by=request.user)
+        raise HttpError(400, "Book already exists in your library")
+    except UserBook.DoesNotExist:
+        with transaction.atomic():
+            user_book = UserBook.objects.create(
+                created_by=request.user,
+                **payload.dict(exclude={"shelves"})
+            )
+
+            if shelves:
+                user_book.shelves.set(Shelf.objects.filter(pk__in=shelves))
 
     return 201
 

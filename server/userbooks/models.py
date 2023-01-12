@@ -18,7 +18,7 @@ class Shelf(BaseModel):
 
 
 class UserBook(BaseModel):
-    book = models.OneToOneField('books.Book', on_delete=models.CASCADE)
+    book = models.ForeignKey('books.Book', on_delete=models.CASCADE, related_name='all_userbooks')
     shelves = models.ManyToManyField('userbooks.Shelf', blank=True, related_name='all_userbooks')
 
     is_currently_reading = models.BooleanField(default=False)
