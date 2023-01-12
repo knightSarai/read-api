@@ -26,6 +26,10 @@ class BookOut(BookBase):
     image: Optional[str]
 
 
+class BookSearch(BookOut):
+    on_shelf: Optional[bool]
+
+
 class BookQueryParams(Schema):
     title: Optional[str]
     authors: Optional[str]
