@@ -2,18 +2,20 @@ from typing import List
 
 from django.contrib.postgres.search import SearchVector, SearchQuery, SearchRank
 from django.db import transaction
+from django.db.models import Exists, OuterRef
 from django.shortcuts import get_object_or_404
 from ninja import Router, Query, File
 from ninja.files import UploadedFile
 from ninja.pagination import paginate
 
 from books.models import Book, Genre
-from books.schemas import BookIn, BookQueryParams, BookOut, GenreIn, GenreOut
+from books.schemas import BookIn, BookQueryParams, BookOut, BookSearch, GenreIn, GenreOut
+from userbooks.models import UserBook
 
 router = Router()
 
 
-@router.get("/search", response=List[BookOut], auth=None)
+@router.get("/search", response=List[BookSearch], auth=None)
 @paginate
 def search_books(request, query: BookQueryParams = Query(...)):
     query = query.dict(exclude_unset=True)
@@ -33,11 +35,21 @@ def search_books(request, query: BookQueryParams = Query(...)):
         Book.objects
         .annotate(
             search=search_vector,
-            rank=SearchRank(search_vector, search_query)
+            rank=SearchRank(search_vector, search_query),
         )
         .filter(rank__gte=0.2)
         .order_by("-rank")
     )
+
+    user = request.user
+    if user.is_authenticated:
+        user_books = UserBook.objects.filter(
+            book=OuterRef('pk'),
+            created_by=user,
+        )
+        books = books.annotate(
+            on_shelf=Exists(user_books)
+        )
 
     return books
 
