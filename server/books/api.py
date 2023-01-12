@@ -2,9 +2,11 @@ from typing import List
 
 from django.contrib.postgres.search import SearchVector, SearchQuery, SearchRank
 from django.db import transaction
-from django.db.models import Exists, OuterRef
+from django.db.models import Exists, OuterRef, Subquery
 from django.shortcuts import get_object_or_404
+from books.helper import annotate_user_book_id
 from ninja import Router, Query, File
+from ninja.errors import HttpError
 from ninja.files import UploadedFile
 from ninja.pagination import paginate
 
@@ -17,7 +19,7 @@ router = Router()
 
 @router.get("/search", response=List[BookSearch], auth=None)
 @paginate
-def search_books(request, query: BookQueryParams = Query(...)):
+def search_books(request, query: BookQueryParams = Query(...), exclude_not_owned: bool = False):
     query = query.dict(exclude_unset=True)
 
     search_vector = None
@@ -43,13 +45,11 @@ def search_books(request, query: BookQueryParams = Query(...)):
 
     user = request.user
     if user.is_authenticated:
-        user_books = UserBook.objects.filter(
-            book=OuterRef('pk'),
-            created_by=user,
-        )
-        books = books.annotate(
-            on_shelf=Exists(user_books)
-        )
+        books = annotate_user_book_id(books, user)
+
+        if exclude_not_owned:
+            print('exclude_not_owned')
+            books = books.filter(user_book_id__isnull=True)
 
     return books
 
@@ -129,7 +129,26 @@ def delete_book_image(request, book_id: int):
 
 @router.get("/{book_id}", response=BookOut, auth=None)
 def get_book_by_id(request, book_id: int):
-    return get_object_or_404(Book, id=book_id)
+    try:
+        book = Book.objects.filter(pk=book_id)
+
+        if not book.exists():
+            raise Book.DoesNotExist
+
+        if book.count() > 1:
+            raise Book.MultipleObjectsReturned
+
+        user = request.user
+        if user.is_authenticated:
+            book = annotate_user_book_id(book, user)
+
+
+    except Book.DoesNotExist:
+        raise HttpError(404, "Book not found")
+    except Book.MultipleObjectsReturned:
+        raise HttpError(500, "Multiple books found")
+
+    return book.first()
 
 
 @router.get("/{book_id}/genres", response=List[GenreOut], auth=None)

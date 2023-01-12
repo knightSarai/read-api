@@ -24,10 +24,11 @@ class BookIn(BookBase):
 class BookOut(BookBase):
     id: int
     image: Optional[str]
+    user_book_id: Optional[int]
 
 
 class BookSearch(BookOut):
-    on_shelf: Optional[bool]
+    user_book_id: Optional[int]
 
 
 class BookQueryParams(Schema):
