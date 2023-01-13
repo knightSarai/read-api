@@ -73,7 +73,7 @@ def list_read_books(request):
 
 
 @router.put("/books/{book_id}")
-def update_user_books(request, book_id: int, payload: UserBookUpdate):
+def update_user_book(request, book_id: int, payload: UserBookUpdate):
     shelves = payload.dict().get('shelves')
     user_book = get_object_or_404(UserBook, pk=book_id, created_by=request.user)
     user_book.shelves.clear()
@@ -82,8 +82,13 @@ def update_user_books(request, book_id: int, payload: UserBookUpdate):
     return 200
 
 
+@router.get("/books/{book_id}", response=UserBookOut, exclude_none=True)
+def get_user_book(request, book_id: int):
+    return get_object_or_404(UserBook, pk=book_id, created_by=request.user)
+
+
 @router.delete("/books/{book_id}")
-def delete_user_books(request, book_id: int):
+def delete_user_book(request, book_id: int):
     user_book = get_object_or_404(UserBook, pk=book_id, created_by=request.user)
     user_book.delete()
 
