@@ -63,7 +63,7 @@ def create_genre(request, payload: GenreIn):
     return {"id": genre.id}
 
 
-@router.get("/genres", response=List[GenreOut], auth=None)
+@router.get("/genres", response=List[GenreOut])
 def get_genres(request):
     return Genre.objects.all()
 
@@ -84,7 +84,7 @@ def create_book(request, payload: BookIn):
     return {"id": book.id}
 
 
-@router.get("", response=List[BookOut], auth=None)
+@router.get("", response=List[BookOut])
 @paginate
 def get_books(request):
     return Book.objects.all()
@@ -126,7 +126,7 @@ def delete_book_image(request, book_id: int):
     return 204
 
 
-@router.get("/{book_id}", response=BookOut, auth=None)
+@router.get("/{book_id}", response=BookOut)
 def get_book_by_id(request, book_id: int):
     try:
         book = Book.objects.filter(pk=book_id)
@@ -150,7 +150,7 @@ def get_book_by_id(request, book_id: int):
     return book.first()
 
 
-@router.get("/{book_id}/genres", response=List[GenreOut], auth=None)
+@router.get("/{book_id}/genres", response=List[GenreOut])
 def get_genres_by_book_id(request, book_id: int):
     book = get_object_or_404(Book, id=book_id)
     genres = book.genres.all()
