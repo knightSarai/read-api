@@ -17,7 +17,7 @@ from userbooks.models import UserBook
 router = Router()
 
 
-@router.get("/search", response=List[BookSearch], auth=None)
+@router.get("/search", response=List[BookSearch])
 @paginate
 def search_books(request, query: BookQueryParams = Query(...), exclude_library: bool = False):
     query = query.dict(exclude_unset=True)
