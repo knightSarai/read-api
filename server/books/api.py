@@ -19,7 +19,7 @@ router = Router()
 
 @router.get("/search", response=List[BookSearch], auth=None)
 @paginate
-def search_books(request, query: BookQueryParams = Query(...), exclude_not_owned: bool = False):
+def search_books(request, query: BookQueryParams = Query(...), exclude_library: bool = False):
     query = query.dict(exclude_unset=True)
 
     search_vector = None
@@ -47,7 +47,7 @@ def search_books(request, query: BookQueryParams = Query(...), exclude_not_owned
     if user.is_authenticated:
         books = annotate_user_book_id(books, user)
 
-        if exclude_not_owned:
+        if exclude_library:
             books = books.filter(user_book_id__isnull=True)
 
     return books

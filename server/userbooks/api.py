@@ -49,7 +49,7 @@ def create_user_book(request, payload: UserBookIn):
     return 201
 
 
-@router.get("/books", response=List[UserBookOut])
+@router.get("/books", response=List[UserBookOut], exclude_none=True)
 @paginate
 def list_user_books(request):
     return UserBook.objects.filter(created_by=request.user)
