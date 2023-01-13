@@ -48,7 +48,6 @@ def search_books(request, query: BookQueryParams = Query(...), exclude_not_owned
         books = annotate_user_book_id(books, user)
 
         if exclude_not_owned:
-            print('exclude_not_owned')
             books = books.filter(user_book_id__isnull=True)
 
     return books

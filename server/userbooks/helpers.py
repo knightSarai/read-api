@@ -10,4 +10,4 @@ def check_unfinished_session(book_id: int):
         if not_finished_sessions.exists():
             return not_finished_sessions.first()
 
-        return None
+    return None

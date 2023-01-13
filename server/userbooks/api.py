@@ -11,8 +11,18 @@ from ninja.pagination import paginate
 from userbooks.helpers import check_unfinished_session
 from userbooks.models import Shelf, UserBook, UserBookSession
 from userbooks.schemas import (
-    ShelfIn, ShelfOut, ShelfBookIn, UserBookIn, UserBookUpdate, UserBookOut,
-    CurrentlyReadingIn, UserBookSessionOut, UserBookSessionIn, ReadingProgressIn, CurrentlyReadingBookOut, ShelfBookOut
+    ShelfIn,
+    ShelfOut,
+    ShelfBookIn,
+    UserBookIn,
+    UserBookUpdate,
+    UserBookOut,
+    CurrentlyReadingIn,
+    UserBookSessionOut,
+    UserBookSessionIn,
+    ReadingProgressIn,
+    CurrentlyReadingBookOut,
+    ShelfBookOut
 )
 
 router = Router()
@@ -140,8 +150,6 @@ def mark_book_as_done(request, book_id: int):
             )
 
         userbook.is_currently_reading = False
-        userbook.progress = None
-        userbook.progress_updated_at = None
         userbook.save()
 
     return 201
