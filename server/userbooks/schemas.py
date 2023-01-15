@@ -50,7 +50,7 @@ class ShelfBookOut(UserBookBase):
 
 
 class CurrentlyReadingBookOut(UserBookOut):
-    progress: int
+    progress: Optional[Decimal]
 
 
 class UserBookSessionBase(Schema):
