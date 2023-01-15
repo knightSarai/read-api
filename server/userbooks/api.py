@@ -202,7 +202,7 @@ def update_shelf(request, shelf_id: int, payload: ShelfIn):
     return 200
 
 
-@router.get("/shelves/{shelf_id}/books", response=List[ShelfBookOut])
+@router.get("/shelves/{shelf_id}/books", response=List[ShelfBookOut], exclude_none=True)
 @paginate
 def get_shelf_books(request, shelf_id: int):
     shelf = get_object_or_404(Shelf, pk=shelf_id, created_by=request.user)

@@ -14,9 +14,6 @@ class ShelfIn(Schema):
 
 class ShelfOut(ShelfIn):
     id: int
-    slug: str
-
-
 
 
 class ShelfBookIn(Schema):
@@ -37,14 +34,20 @@ class UserBookUpdate(Schema):
     shelves: Optional[List[int]]
 
 
-class UserBookOut(Schema):
+
+class UserBookBase(Schema):
     id: int
     book: BookOut
     is_currently_reading: bool
 
 
-class ShelfBookOut(UserBookOut):
+class UserBookOut(UserBookBase):
+    shelves: Optional[List[ShelfOut]]
+
+
+class ShelfBookOut(UserBookBase):
     shelf_name: str
+
 
 class CurrentlyReadingBookOut(UserBookOut):
     progress: int
